@@ -154,21 +154,26 @@ def most_common_artist(songs: List[Song]) -> Tuple[str, int]:
     return items[0]
 
 
+SEARCHABLE_FIELDS = {"title", "artist", "genre"}
+
+
 def search_songs(
     songs: List[Song],
     query: str,
     field: str = "artist",
 ) -> List[Song]:
-    """Return songs matching the query on a given field."""
-    if not query:
+    """Return songs whose field contains the query as a substring, case-insensitively."""
+    if field not in SEARCHABLE_FIELDS:
+        raise ValueError(f"Unsupported search field: {field!r}. Expected one of {sorted(SEARCHABLE_FIELDS)}.")
+
+    q = query.strip().lower()
+    if not q:
         return songs
 
-    q = query.lower().strip()
     filtered: List[Song] = []
-
     for song in songs:
-        value = str(song.get(field, "")).lower()
-        if value and value in q:
+        value = str(song.get(field, "")).strip().lower()
+        if q in value:
             filtered.append(song)
 
     return filtered
